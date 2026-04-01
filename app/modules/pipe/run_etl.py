@@ -6,7 +6,7 @@ Uso: python run_etl.py [caminho_planilha.xlsx]
 import sys
 from sqlalchemy import create_engine
 
-from config.settings import DATABASE_URL, USUARIO_ID_PADRAO
+from app.config import DATABASE_URL, USUARIO_ID_PADRAO
 from etl.extract import extrair
 from etl.transform import transformar_instituicoes, transformar_categorias, transformar_transacoes
 from etl.load import carregar_instituicoes, carregar_categorias, carregar_transacoes
