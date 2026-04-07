@@ -1,36 +1,99 @@
 ================================================================================
-  PLANILHA DE TRANSAÇÕES – Instruções
+  ContaDIN ETL - API de processamento financeiro com IA
 ================================================================================
 
-Se você está usando o arquivo no MICROSOFT EXCEL:
-  • As listas de Instituição e Categoria já devem aparecer ao clicar na setinha
-    das células das colunas E e F na aba Transacoes.
-  • Preencha primeiro as abas Instituicoes e Categorias; os nomes que você
-    colocar na coluna "Nome" (coluna A) de cada aba aparecerão nas listas.
+API construída com FastAPI que utiliza o Google Gemini para estruturar dados
+financeiros a partir de planilhas e imagens de documentos (boletos, recibos,
+notas fiscais, etc.).
 
-Se você está usando no GOOGLE PLANILHAS e a lista está VAZIA:
-  O Google Planilhas não usa direito as validações entre abas vindas do Excel.
-  Faça o seguinte para a lista de INSTITUIÇÃO aparecer:
+================================================================================
+  ARQUITETURA
+================================================================================
 
-  1. Abra a aba "Transacoes".
-  2. Selecione a coluna E (Instituicao) – clique no cabeçalho "E".
-  3. Menu: Dados → Validação de dados.
-  4. Em "Critérios", escolha "Lista de intervalo".
-  5. No campo do intervalo, digite exatamente:
-       Instituicoes!A2:A
-  6. Clique em "Salvar".
+app/
+├── main.py                         # Entry point da aplicação FastAPI
+├── config/
+│   └── __init__.py                 # Variáveis de ambiente (.env)
+│
+├── api/
+│   ├── routers/
+│   │   ├── __init__.py             # Exporta todos os routers
+│   │   ├── ai.py                   # Rotas de IA (/ai)
+│   │   └── data.py                 # Rotas de dados/ETL (/data)
+│   ├── controllers/
+│   │   ├── ai_controller.py        # Handlers de IA
+│   │   └── data_controller.py      # Handlers de dados
+│   ├── services/
+│   │   ├── ai_service.py           # Lógica de negócio de IA
+│   │   └── data_service.py         # Orquestra o pipeline ETL
+│   └── schemas/
+│       ├── ai_schema.py            # Modelos de request/response de IA
+│       └── data_schema.py          # Modelos de entidades financeiras
+│
+└── modules/
+    ├── gemini/
+    │   ├── __init__.py             # Cliente Gemini (text + image)
+    │   └── prompts/
+    │       ├── ola_mundo.md        # Prompt de teste
+    │       ├── parse_spreadsheet.md # Prompt para estruturar planilhas
+    │       └── scan_image.md       # Prompt para extrair dados de imagens
+    └── etl/
+        ├── __init__.py
+        ├── extract.py              # Lê planilhas (xlsx/csv) para texto
+        └── transform.py            # Parseia JSON da resposta do Gemini
 
-  Para a lista de CATEGORIA:
+Fluxo: Router -> Controller -> Service -> Module
 
-  1. Na aba "Transacoes", selecione a coluna F (Categoria).
-  2. Menu: Dados → Validação de dados.
-  3. Critérios: "Lista de intervalo".
-  4. Intervalo:
-       Categorias!A2:A
-  5. Salvar.
+================================================================================
+  ENDPOINTS
+================================================================================
 
-Depois disso, ao clicar numa célula da coluna Instituicao ou Categoria, deve
-aparecer a lista com os nomes que você cadastrou nas abas Instituicoes e
-Categorias (coluna "Nome").
+  IA (/ai)
+  --------
+  GET  /ai/hello-world    Envia prompt pré-definido ao Gemini (teste)
+  POST /ai/query           Envia prompt customizado ao Gemini
+                           Body: { "prompt": "..." }
+  POST /ai/scan            Recebe imagem de documento financeiro e extrai
+                           dados de transação e instituição
+                           Body: multipart/form-data (file)
+
+  Data (/data)
+  ------------
+  POST /data/process       Recebe planilha financeira (xlsx/csv), estrutura
+                           com IA e retorna JSON com entidades extraídas
+                           Body: multipart/form-data (file)
+
+================================================================================
+  CONFIGURAÇÃO
+================================================================================
+
+Variáveis de ambiente (.env):
+
+  DATABASE_URL        URL de conexão com o banco de dados
+  GEMINI_API_KEY      Chave da API do Google Gemini
+  GEMINI_MODEL        Modelo do Gemini (ex: gemini-2.5-flash-preview-04-17)
+  USUARIO_ID_PADRAO   ID padrão do usuário
+
+================================================================================
+  COMO RODAR
+================================================================================
+
+  1. Criar ambiente virtual e instalar dependências:
+
+     uv venv
+     uv pip install -r requirements.txt
+
+  2. Configurar variáveis de ambiente:
+
+     cp .env.example .env
+     # editar .env com suas credenciais
+
+  3. Iniciar o servidor:
+
+     uvicorn app.main:app --reload
+
+  4. Acessar documentação interativa:
+
+     http://localhost:8000/docs
 
 ================================================================================
