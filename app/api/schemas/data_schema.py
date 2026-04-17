@@ -39,6 +39,7 @@ class SpendingGoalData(BaseModel):
     data_fim_meta: str | None = None
     categoria: str | None = None
     fk_categoria: int | None = None
+    fk_usuario: int | None = None
 
 
 class DataProcessResponse(BaseModel):
