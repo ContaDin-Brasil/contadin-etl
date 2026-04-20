@@ -3,6 +3,7 @@
 
 class ETLError(Exception):
     """Base para todos os erros do pipeline ETL."""
+
     def __init__(self, message: str, detail: str | None = None):
         super().__init__(message)
         self.message = message

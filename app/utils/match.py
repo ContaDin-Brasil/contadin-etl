@@ -30,10 +30,12 @@ def _buscar_categorias(usuario_id: int) -> dict[str, int]:
     """Retorna mapa nome_normalizado -> id das categorias do usuário e globais."""
     with get_engine().connect() as conn:
         rows = conn.execute(
-            text("""
+            text(
+                """
                 SELECT id, nome FROM categoria
                 WHERE fk_usuario = :uid OR fk_usuario IS NULL
-            """),
+            """
+            ),
             {"uid": usuario_id},
         ).fetchall()
     # Categorias do usuário ficam por último no dict, sobrescrevendo globais de mesmo nome
@@ -70,15 +72,21 @@ def match_data_response(data: dict, usuario_id: int) -> dict:
         nome_inst = trans.get("instituicao")
         nome_cat = trans.get("categoria")
         if nome_inst:
-            trans["fk_instituicao"] = _match_ou_avisa(map_inst, nome_inst, "transacao.instituicao")
+            trans["fk_instituicao"] = _match_ou_avisa(
+                map_inst, nome_inst, "transacao.instituicao"
+            )
         if nome_cat:
-            trans["fk_categoria"] = _match_ou_avisa(map_cat, nome_cat, "transacao.categoria")
+            trans["fk_categoria"] = _match_ou_avisa(
+                map_cat, nome_cat, "transacao.categoria"
+            )
 
     for meta in data.get("metas_gasto", []):
         meta["fk_usuario"] = usuario_id
         nome_cat = meta.get("categoria")
         if nome_cat:
-            meta["fk_categoria"] = _match_ou_avisa(map_cat, nome_cat, "meta_gasto.categoria")
+            meta["fk_categoria"] = _match_ou_avisa(
+                map_cat, nome_cat, "meta_gasto.categoria"
+            )
 
     return data
 
@@ -100,8 +108,12 @@ def match_scan_response(data: dict, usuario_id: int) -> dict:
     nome_inst_trans = trans.get("instituicao")
     nome_cat = trans.get("categoria")
     if nome_inst_trans:
-        trans["fk_instituicao"] = _match_ou_avisa(map_inst, nome_inst_trans, "scan.transacao.instituicao")
+        trans["fk_instituicao"] = _match_ou_avisa(
+            map_inst, nome_inst_trans, "scan.transacao.instituicao"
+        )
     if nome_cat:
-        trans["fk_categoria"] = _match_ou_avisa(map_cat, nome_cat, "scan.transacao.categoria")
+        trans["fk_categoria"] = _match_ou_avisa(
+            map_cat, nome_cat, "scan.transacao.categoria"
+        )
 
     return data

@@ -3,7 +3,11 @@
 from fastapi import UploadFile
 
 from app.api.schemas.ai_schema import AIRequest, AIResponse, ScanResponse
-from app.api.services.ai_service import generate_hello_world, generate_custom, scan_image
+from app.api.services.ai_service import (
+    generate_hello_world,
+    generate_custom,
+    scan_image,
+)
 
 
 def handle_hello_world() -> AIResponse:
@@ -18,8 +22,6 @@ def handle_custom_prompt(request: AIRequest) -> AIResponse:
     return AIResponse(response=result)
 
 
-def handle_scan_image(
-    file: UploadFile, usuario_id: int | None = None
-) -> ScanResponse:
+def handle_scan_image(file: UploadFile, usuario_id: int | None = None) -> ScanResponse:
     """Handler do POST - extrai dados financeiros de uma imagem."""
     return scan_image(file, usuario_id)

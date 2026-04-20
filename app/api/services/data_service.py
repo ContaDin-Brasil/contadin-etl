@@ -34,7 +34,9 @@ def process_spreadsheet(
         ) from exc
 
     try:
-        prompt_template = (PROMPTS_DIR / "parse_spreadsheet.md").read_text(encoding="utf-8")
+        prompt_template = (PROMPTS_DIR / "parse_spreadsheet.md").read_text(
+            encoding="utf-8"
+        )
         prompt = f"{prompt_template}\n\n{raw_data}"
         ai_response = generate(prompt)
     except Exception as exc:

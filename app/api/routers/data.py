@@ -11,7 +11,9 @@ router = APIRouter(prefix="/data", tags=["data"])
 @router.post("/process", response_model=DataProcessResponse)
 def post_process(
     file: UploadFile = File(...),
-    usuario_id: int | None = Query(None, description="ID do usuário para matching de entidades existentes"),
+    usuario_id: int | None = Query(
+        None, description="ID do usuário para matching de entidades existentes"
+    ),
 ):
     """Recebe uma planilha financeira, estrutura com IA e retorna dados limpos."""
     return handle_process_spreadsheet(file, usuario_id)

@@ -27,7 +27,9 @@ def post_query(request: AIRequest):
 @router.post("/scan", response_model=ScanResponse)
 def post_scan(
     file: UploadFile = File(...),
-    usuario_id: int | None = Query(None, description="ID do usuário para matching de entidades existentes"),
+    usuario_id: int | None = Query(
+        None, description="ID do usuário para matching de entidades existentes"
+    ),
 ):
     """Recebe imagem de documento financeiro e extrai dados de transação e instituição."""
     return handle_scan_image(file, usuario_id)
