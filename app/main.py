@@ -3,14 +3,29 @@
 import logging
 
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.api.routers import ai_router, data_router
-from app.core.exceptions import AIResponseError, AIServiceError, ETLError, ExtractionError, MatchError
+from app.core.exceptions import (
+    AIResponseError,
+    AIServiceError,
+    ETLError,
+    ExtractionError,
+    MatchError,
+)
 
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(ai_router)
 app.include_router(data_router)
@@ -18,6 +33,10 @@ app.include_router(data_router)
 
 @app.exception_handler(ExtractionError)
 async def extraction_error_handler(_: Request, exc: ExtractionError) -> JSONResponse:
+    """Trata erros ocorridos durante a extração de dados do documento.
+
+    Retorna HTTP 422 quando o conteúdo enviado não pôde ser extraído corretamente.
+    """
     logger.warning("ExtractionError: %s | detalhe: %s", exc.message, exc.detail)
     return JSONResponse(
         status_code=422,
@@ -27,6 +46,10 @@ async def extraction_error_handler(_: Request, exc: ExtractionError) -> JSONResp
 
 @app.exception_handler(AIResponseError)
 async def ai_response_error_handler(_: Request, exc: AIResponseError) -> JSONResponse:
+    """Trata erros gerados quando a resposta da IA está em formato inválido ou incompleto.
+
+    Retorna HTTP 422 quando a saída do modelo não pode ser interpretada como esperado.
+    """
     logger.warning("AIResponseError: %s | detalhe: %s", exc.message, exc.detail)
     return JSONResponse(
         status_code=422,
@@ -36,6 +59,10 @@ async def ai_response_error_handler(_: Request, exc: AIResponseError) -> JSONRes
 
 @app.exception_handler(AIServiceError)
 async def ai_service_error_handler(_: Request, exc: AIServiceError) -> JSONResponse:
+    """Trata falhas de comunicação ou indisponibilidade do serviço de IA.
+
+    Retorna HTTP 503 quando o serviço externo de IA não está acessível ou retorna erro.
+    """
     logger.error("AIServiceError: %s | detalhe: %s", exc.message, exc.detail)
     return JSONResponse(
         status_code=503,
@@ -45,6 +72,10 @@ async def ai_service_error_handler(_: Request, exc: AIServiceError) -> JSONRespo
 
 @app.exception_handler(MatchError)
 async def match_error_handler(_: Request, exc: MatchError) -> JSONResponse:
+    """Trata erros ocorridos durante o processo de matching de contas contábeis.
+
+    Retorna HTTP 502 quando não é possível associar os dados extraídos ao plano de contas.
+    """
     logger.error("MatchError: %s | detalhe: %s", exc.message, exc.detail)
     return JSONResponse(
         status_code=502,
