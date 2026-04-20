@@ -61,12 +61,12 @@ def match_data_response(data: dict, usuario_id: int) -> dict:
     for inst in data.get("instituicoes", []):
         nome = inst.get("nome")
         if nome:
-            inst["id_existente"] = _match_ou_avisa(map_inst, nome, "instituicao")
+            inst["id"] = _match_ou_avisa(map_inst, nome, "instituicao")
 
     for cat in data.get("categorias", []):
         nome = cat.get("nome")
         if nome:
-            cat["id_existente"] = _match_ou_avisa(map_cat, nome, "categoria")
+            cat["id"] = _match_ou_avisa(map_cat, nome, "categoria")
 
     for trans in data.get("transacoes", []):
         nome_inst = trans.get("instituicao")
@@ -102,7 +102,7 @@ def match_scan_response(data: dict, usuario_id: int) -> dict:
     inst = data.get("instituicao", {})
     nome_inst = inst.get("nome")
     if nome_inst:
-        inst["id_existente"] = _match_ou_avisa(map_inst, nome_inst, "scan.instituicao")
+        inst["id"] = _match_ou_avisa(map_inst, nome_inst, "scan.instituicao")
 
     trans = data.get("transacao", {})
     nome_inst_trans = trans.get("instituicao")
