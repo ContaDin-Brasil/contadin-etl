@@ -13,6 +13,7 @@ Popula as tabelas:
 import os
 import random
 import sys
+import uuid
 from datetime import datetime, timedelta
 
 import psycopg2
@@ -28,7 +29,7 @@ DATABASE_URL = os.getenv("DATABASE_URL", "")
 # ── Dados de seed ─────────────────────────────────────────────────────────────────
 
 USUARIO = {
-    "id": 1,
+    "id": uuid.UUID("00000000-0000-0000-0000-000000000001"),
     "nome": "João",
     "sobrenome": "Silva",
     "email": "joao.silva@email.com",
@@ -173,7 +174,7 @@ def create_tables(conn: psycopg2.extensions.connection) -> None:
         EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
         CREATE TABLE IF NOT EXISTS usuario (
-            id        SERIAL PRIMARY KEY,
+            id        UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             nome      VARCHAR NOT NULL,
             sobrenome VARCHAR,
             email     VARCHAR NOT NULL,
@@ -183,33 +184,33 @@ def create_tables(conn: psycopg2.extensions.connection) -> None:
         );
 
         CREATE TABLE IF NOT EXISTS token_recuperar_senha (
-            id              SERIAL PRIMARY KEY,
+            id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             token           VARCHAR NOT NULL UNIQUE,
             utilizado       BOOLEAN,
             data_expiracao  TIMESTAMP NOT NULL,
-            fk_usuario      INTEGER NOT NULL REFERENCES usuario(id)
+            fk_usuario      UUID NOT NULL REFERENCES usuario(id)
         );
 
         CREATE TABLE IF NOT EXISTS instituicao (
-            id         SERIAL PRIMARY KEY,
+            id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             nome       VARCHAR NOT NULL,
             tipo       VARCHAR NOT NULL,
             icone      VARCHAR,
             cor        VARCHAR,
-            fk_usuario INTEGER NOT NULL REFERENCES usuario(id)
+            fk_usuario UUID NOT NULL REFERENCES usuario(id)
         );
 
         CREATE TABLE IF NOT EXISTS categoria (
-            id         SERIAL PRIMARY KEY,
+            id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             nome       VARCHAR NOT NULL,
             icone      VARCHAR,
             cor        VARCHAR,
             tipo       tipo_transacao NOT NULL,
-            fk_usuario INTEGER REFERENCES usuario(id)
+            fk_usuario UUID REFERENCES usuario(id)
         );
 
         CREATE TABLE IF NOT EXISTS transacao (
-            id              SERIAL PRIMARY KEY,
+            id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             valor           DOUBLE PRECISION NOT NULL,
             tipo            tipo_transacao NOT NULL,
             descricao       VARCHAR,
@@ -217,17 +218,17 @@ def create_tables(conn: psycopg2.extensions.connection) -> None:
             parcelado       BOOLEAN NOT NULL,
             recorrencia     recorrencia_tipo,
             fim_transacao   DATE,
-            fk_instituicao  INTEGER NOT NULL REFERENCES instituicao(id),
-            fk_categoria    INTEGER REFERENCES categoria(id)
+            fk_instituicao  UUID NOT NULL REFERENCES instituicao(id),
+            fk_categoria    UUID REFERENCES categoria(id)
         );
 
         CREATE TABLE IF NOT EXISTS meta_gasto (
-            id            SERIAL PRIMARY KEY,
+            id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             nome          VARCHAR NOT NULL,
             valor         DOUBLE PRECISION NOT NULL,
             data_fim_meta DATE,
-            fk_usuario    INTEGER NOT NULL REFERENCES usuario(id),
-            fk_categoria  INTEGER NOT NULL REFERENCES categoria(id)
+            fk_usuario    UUID NOT NULL REFERENCES usuario(id),
+            fk_categoria  UUID NOT NULL REFERENCES categoria(id)
         );
     """
     )
@@ -260,7 +261,8 @@ def seed(conn: psycopg2.extensions.connection) -> None:
         ),
     )
     conn.commit()
-    print("  OK — usuário id=1")
+    usuario_uuid = USUARIO["id"]
+    print(f"  OK — usuário id={usuario_uuid}")
 
     print("\n[2/6] Inserindo tokens de recuperação de senha...")
     for tok in TOKENS_RECUPERACAO:
@@ -271,7 +273,7 @@ def seed(conn: psycopg2.extensions.connection) -> None:
             VALUES (%s, %s, %s, %s)
             ON CONFLICT (token) DO NOTHING
         """,
-            (tok["token"], tok["utilizado"], expiracao, 1),
+            (tok["token"], tok["utilizado"], expiracao, usuario_uuid),
         )
     conn.commit()
     print(f"  OK — {len(TOKENS_RECUPERACAO)} tokens inseridos")
@@ -285,7 +287,7 @@ def seed(conn: psycopg2.extensions.connection) -> None:
             VALUES (%s, %s, %s, %s, %s)
             RETURNING id
         """,
-            (inst["nome"], inst["tipo"], inst["icone"], inst["cor"], 1),
+            (inst["nome"], inst["tipo"], inst["icone"], inst["cor"], usuario_uuid),
         )
         inst_ids.append(cur.fetchone()[0])
     conn.commit()
@@ -300,7 +302,7 @@ def seed(conn: psycopg2.extensions.connection) -> None:
             VALUES (%s, %s, %s, %s, %s)
             RETURNING id
         """,
-            (cat["nome"], cat["icone"], cat["cor"], cat["tipo"], 1),
+            (cat["nome"], cat["icone"], cat["cor"], cat["tipo"], usuario_uuid),
         )
         cat_ids.append(cur.fetchone()[0])
     conn.commit()
@@ -366,7 +368,7 @@ def seed(conn: psycopg2.extensions.connection) -> None:
             INSERT INTO meta_gasto (nome, valor, data_fim_meta, fk_usuario, fk_categoria)
             VALUES (%s, %s, %s, %s, %s)
         """,
-            (meta["nome"], meta["valor"], fim_meta, 1, cat_ids[meta["cat_idx"]]),
+            (meta["nome"], meta["valor"], fim_meta, usuario_uuid, cat_ids[meta["cat_idx"]]),
         )
     conn.commit()
     print(f"  OK — {len(META_GASTOS)} metas de gasto")

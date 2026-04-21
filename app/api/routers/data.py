@@ -1,5 +1,7 @@
 """Routers de Data (ETL)"""
 
+from uuid import UUID
+
 from fastapi import APIRouter, File, Query, UploadFile
 
 from app.api.schemas.data_schema import DataProcessResponse
@@ -11,7 +13,7 @@ router = APIRouter(prefix="/data", tags=["data"])
 @router.post("/process", response_model=DataProcessResponse)
 def post_process(
     file: UploadFile = File(...),
-    usuario_id: int | None = Query(
+    usuario_id: UUID | None = Query(
         None, description="ID do usuário para matching de entidades existentes"
     ),
 ):

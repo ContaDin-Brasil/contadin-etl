@@ -1,5 +1,7 @@
 """Routers de IA"""
 
+from uuid import UUID
+
 from fastapi import APIRouter, File, Query, UploadFile
 
 from app.api.schemas.ai_schema import AIRequest, AIResponse, ScanResponse
@@ -27,7 +29,7 @@ def post_query(request: AIRequest):
 @router.post("/scan", response_model=ScanResponse)
 def post_scan(
     file: UploadFile = File(...),
-    usuario_id: int | None = Query(
+    usuario_id: UUID | None = Query(
         None, description="ID do usuário para matching de entidades existentes"
     ),
 ):
