@@ -7,6 +7,7 @@ from app.api.services.ai_service import (
     generate_hello_world,
     generate_custom,
     scan_image,
+    scan_audio,
 )
 
 
@@ -25,3 +26,8 @@ def handle_custom_prompt(request: AIRequest) -> AIResponse:
 def handle_scan_image(file: UploadFile, usuario_id: int | None = None) -> ScanResponse:
     """Handler do POST - extrai dados financeiros de uma imagem."""
     return scan_image(file, usuario_id)
+
+
+def handle_scan_audio(file: UploadFile, usuario_id: int | None = None) -> ScanResponse:
+    """Handler do POST - extrai dados financeiros de um áudio."""
+    return scan_audio(file, usuario_id)
