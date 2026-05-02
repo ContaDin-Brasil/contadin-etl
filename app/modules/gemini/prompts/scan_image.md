@@ -40,6 +40,7 @@ Analise a imagem fornecida (pode ser um boleto, comprovante de pagamento, nota f
 6. Tente inferir a categoria com base na descrição ou tipo de estabelecimento
 7. Boletos e pagamentos são geralmente `"GASTO"`, depósitos e recebimentos são `"RECEITA"`
 8. Se identificar parcelas (ex: "3/12"), marque `parcelado` como `true`
+9. Caso não haja informações referente a data de transação, retorne `null`, justamente porque o campo não pôde ser identificado.
 
 ## Formato de Saída
 

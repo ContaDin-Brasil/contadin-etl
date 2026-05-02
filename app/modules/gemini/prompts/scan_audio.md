@@ -40,10 +40,10 @@ Analise o áudio fornecido (pode ser uma descrição verbal de uma transação, 
 6. Tente inferir a categoria com base na descrição ou tipo de estabelecimento mencionado
 7. Pagamentos, compras e despesas são geralmente `"GASTO"`, recebimentos e salários são `"RECEITA"`
 8. Se o usuário mencionar parcelas (ex: "parcelado em 12x"), marque `parcelado` como `true`
-9. Se não houver data explícita no áudio, use a data de hoje
+9. Caso não haja informações referente a data de transação no áudio, retorne `null` em `data_transacao`.
 
 ## Formato de Saída
 
 Retorne APENAS um JSON válido, sem nenhum texto adicional, sem markdown, sem explicações:
 
-{"transacao":{"valor":0.0,"tipo":"GASTO","descricao":"...","data_transacao":"2024-01-01","parcelado":false,"recorrencia":null,"fim_transacao":null,"instituicao":"..."},"instituicao":{"nome":"...","tipo":"...","icone":null,"cor":null}}
+{"transacao":{"valor":0.0,"tipo":"GASTO","descricao":"...","data_transacao":null,"parcelado":false,"recorrencia":null,"fim_transacao":null,"instituicao":"..."},"instituicao":{"nome":"...","tipo":"...","icone":null,"cor":null}}
