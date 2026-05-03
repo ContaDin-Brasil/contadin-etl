@@ -9,6 +9,7 @@ from app.api.controllers.ai_controller import (
     handle_hello_world,
     handle_custom_prompt,
     handle_scan_image,
+    handle_scan_audio,
 )
 
 router = APIRouter(prefix="/ai", tags=["ai"])
@@ -35,3 +36,14 @@ def post_scan(
 ):
     """Recebe imagem de documento financeiro e extrai dados de transação e instituição."""
     return handle_scan_image(file, usuario_id)
+
+
+@router.post("/audio", response_model=ScanResponse)
+def post_audio(
+    file: UploadFile = File(...),
+    usuario_id: UUID | None = Query(
+        None, description="ID do usuário para matching de entidades existentes"
+    ),
+):
+    """Recebe áudio com descrição de transação e extrai dados de transação e instituição."""
+    return handle_scan_audio(file, usuario_id)

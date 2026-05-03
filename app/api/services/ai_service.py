@@ -4,7 +4,7 @@ from pathlib import Path
 
 from fastapi import UploadFile
 
-from app.modules.gemini import generate, generate_with_image
+from app.modules.gemini import generate, generate_with_image, generate_with_audio
 from app.modules.etl.transform import parse_ai_response
 from app.utils.match import match_scan_response
 from app.api.schemas.ai_schema import ScanResponse
@@ -33,6 +33,25 @@ def scan_image(file: UploadFile, usuario_id: int | None = None) -> ScanResponse:
     prompt = (PROMPTS_DIR / "scan_image.md").read_text(encoding="utf-8")
 
     ai_response = generate_with_image(prompt, image_bytes, mime_type)
+    structured = parse_ai_response(ai_response)
+
+    if usuario_id is not None:
+        structured = match_scan_response(structured, usuario_id)
+
+    return ScanResponse(
+        transacao=TransactionData(**structured.get("transacao", {})),
+        instituicao=InstitutionData(**structured.get("instituicao", {})),
+    )
+
+
+def scan_audio(file: UploadFile, usuario_id: int | None = None) -> ScanResponse:
+    """Envia áudio ao Gemini para extrair dados de transação e instituição."""
+    audio_bytes = file.file.read()
+    mime_type = file.content_type or "audio/m4a"
+
+    prompt = (PROMPTS_DIR / "scan_audio.md").read_text(encoding="utf-8")
+
+    ai_response = generate_with_audio(prompt, audio_bytes, mime_type)
     structured = parse_ai_response(ai_response)
 
     if usuario_id is not None:
