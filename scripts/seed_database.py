@@ -368,7 +368,13 @@ def seed(conn: psycopg2.extensions.connection) -> None:
             INSERT INTO meta_gasto (nome, valor, data_fim_meta, fk_usuario, fk_categoria)
             VALUES (%s, %s, %s, %s, %s)
         """,
-            (meta["nome"], meta["valor"], fim_meta, usuario_uuid, cat_ids[meta["cat_idx"]]),
+            (
+                meta["nome"],
+                meta["valor"],
+                fim_meta,
+                usuario_uuid,
+                cat_ids[meta["cat_idx"]],
+            ),
         )
     conn.commit()
     print(f"  OK — {len(META_GASTOS)} metas de gasto")

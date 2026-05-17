@@ -16,16 +16,19 @@ app/
 │   ├── routers/
 │   │   ├── __init__.py              # Exporta todos os routers
 │   │   ├── ai.py                    # Rotas de IA (/ai)
-│   │   └── data.py                  # Rotas de dados/ETL (/data)
+│   │   ├── data.py                  # Rotas de dados/ETL (/data)
+│   │   └── objectives_insights.py   # Insights de objetivos (/objetivos/kpis)
 │   ├── controllers/
 │   │   ├── ai_controller.py         # Handlers de IA
 │   │   └── data_controller.py       # Handlers de dados
 │   ├── services/
 │   │   ├── ai_service.py            # Lógica de negócio de IA
-│   │   └── data_service.py          # Orquestra o pipeline ETL
+│   │   ├── data_service.py          # Orquestra o pipeline ETL
+│   │   └── objectives_insights_service.py  # Insights / ação recomendada (objetivos)
 │   └── schemas/
 │       ├── ai_schema.py             # Modelos de request/response de IA
-│       └── data_schema.py           # Modelos de entidades financeiras
+│       ├── data_schema.py           # Modelos de entidades financeiras
+│       └── objectives_insights_schema.py  # Request/response de KPIs de objetivos
 │
 └── modules/
     ├── gemini/
@@ -60,6 +63,15 @@ app/
 | Método | Rota | Descrição |
 |--------|------|-----------|
 | `POST` | `/data/process` | Recebe planilha financeira (xlsx/csv), estrutura com IA e retorna JSON com as entidades extraídas — body: `multipart/form-data (file)` |
+
+### Objetivos / KPIs (`/objetivos/kpis`)
+
+Consulta objetivos e transações no banco, monta contexto enxuto e chama o Gemini.
+
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| `GET` | `/objetivos/kpis/acao-recomendada` | Query: `fk_usuario` (obrigatório), opcional `data_inicio`, `data_fim`, `tipo_objetivo`. Resposta: `acao_recomendada`, `objetivo_id`. |
+| `GET` | `/objetivos/kpis/insights` | Query: `fk_usuario`. Resposta: lista com `objetivo_id` e `insight` por objetivo ativo. |
 
 ---
 
