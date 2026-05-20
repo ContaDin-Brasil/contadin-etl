@@ -14,7 +14,7 @@ from app.api.schemas.data_schema import (
     InstitutionData,
     CategoryData,
     TransactionData,
-    SpendingGoalData,
+    ObjetivoData,
 )
 
 PROMPTS_DIR = Path(__file__).resolve().parents[2] / "modules" / "gemini" / "prompts"
@@ -57,9 +57,19 @@ def process_spreadsheet(
                 detail=str(exc),
             ) from exc
 
+    objetivos_raw = structured.get("objetivos") or structured.get("metas_gasto", [])
+    objetivos_normalizados = []
+    for item in objetivos_raw:
+        if not isinstance(item, dict):
+            continue
+        row = dict(item)
+        if row.get("data_fim") is None and row.get("data_fim_meta") is not None:
+            row["data_fim"] = row.pop("data_fim_meta")
+        objetivos_normalizados.append(row)
+
     return DataProcessResponse(
         instituicoes=[InstitutionData(**i) for i in structured.get("instituicoes", [])],
         categorias=[CategoryData(**c) for c in structured.get("categorias", [])],
         transacoes=[TransactionData(**t) for t in structured.get("transacoes", [])],
-        metas_gasto=[SpendingGoalData(**s) for s in structured.get("metas_gasto", [])],
+        objetivos=[ObjetivoData(**o) for o in objetivos_normalizados],
     )

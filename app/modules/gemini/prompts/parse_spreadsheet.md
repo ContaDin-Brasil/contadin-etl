@@ -40,14 +40,14 @@ Analise os dados brutos de uma planilha financeira fornecidos ao final desta men
 | instituicao    | varchar (nome da instituição referente) | não         |
 | categoria      | varchar (nome da categoria referente)   | não         |
 
-### meta_gasto
+### objetivo
 
-| Campo         | Tipo                                  | Obrigatório |
-| ------------- | ------------------------------------- | ----------- |
-| nome          | varchar                               | sim         |
-| valor         | double                                | sim         |
-| data_fim_meta | date                                  | não         |
-| categoria     | varchar (nome da categoria referente) | não         |
+| Campo      | Tipo                                  | Obrigatório |
+| ---------- | ------------------------------------- | ----------- |
+| nome       | varchar                               | sim         |
+| valor      | double                                | sim         |
+| data_fim   | date                                  | não         |
+| categoria  | varchar (nome da categoria referente) | não         |
 
 ## O que é uma Instituição
 
@@ -90,6 +90,6 @@ Uma **instituição** é uma entidade financeira real onde o usuário possui con
 Retorne APENAS um JSON válido, sem nenhum texto adicional, sem markdown, sem explicações.
 O JSON deve seguir exatamente este formato:
 
-{"instituicoes":[{"nome":"...","tipo":"...","icone":null,"cor":null}],"categorias":[{"nome":"...","tipo":"GASTO","icone":null,"cor":null}],"transacoes":[{"valor":0.0,"tipo":"GASTO","descricao":"...","data_transacao":"2024-01-01","parcelado":false,"recorrencia":null,"fim_transacao":null,"instituicao":null,"categoria":"..."}],"metas_gasto":[{"nome":"...","valor":0.0,"data_fim_meta":null,"categoria":"..."}]}
+{"instituicoes":[{"nome":"...","tipo":"...","icone":null,"cor":null}],"categorias":[{"nome":"...","tipo":"GASTO","icone":null,"cor":null}],"transacoes":[{"valor":0.0,"tipo":"GASTO","descricao":"...","data_transacao":"2024-01-01","parcelado":false,"recorrencia":null,"fim_transacao":null,"instituicao":null,"categoria":"..."}],"objetivos":[{"nome":"...","valor":0.0,"data_fim":null,"categoria":"..."}]}
 
 ## Dados da Planilha

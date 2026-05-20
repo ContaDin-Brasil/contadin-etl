@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.api.routers import ai_router, data_router
+from app.api.routers.objectives_insights import router as objectives_insights_router
 from app.core.exceptions import (
     AIResponseError,
     AIServiceError,
@@ -29,6 +30,7 @@ app.add_middleware(
 
 app.include_router(ai_router)
 app.include_router(data_router)
+app.include_router(objectives_insights_router)
 
 
 @app.exception_handler(ExtractionError)

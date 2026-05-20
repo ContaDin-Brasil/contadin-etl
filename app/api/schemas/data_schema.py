@@ -10,6 +10,7 @@ TipoRecorrencia = Literal["DIARIO", "SEMANAL", "MENSAL", "ANUAL"]
 
 class InstitutionData(BaseModel):
     """Instituição"""
+
     id: int | None = None
     nome: str | None = None
     tipo: str | None = None
@@ -20,6 +21,7 @@ class InstitutionData(BaseModel):
 
 class CategoryData(BaseModel):
     """Categoria"""
+
     id: int | None = None
     nome: str | None = None
     tipo: TipoMovimento | None = None
@@ -30,6 +32,7 @@ class CategoryData(BaseModel):
 
 class TransactionData(BaseModel):
     """Transação"""
+
     valor: float | None = None
     tipo: TipoMovimento | None = None
     descricao: str | None = None
@@ -43,11 +46,12 @@ class TransactionData(BaseModel):
     fk_categoria: int | None = None
 
 
-class SpendingGoalData(BaseModel):
-    """Meta de Gasto"""
+class ObjetivoData(BaseModel):
+    """Objetivo financeiro extraído da planilha"""
+
     nome: str | None = None
     valor: float | None = None
-    data_fim_meta: str | None = None
+    data_fim: str | None = None
     categoria: str | None = None
     fk_categoria: int | None = None
     fk_usuario: int | None = None
@@ -55,7 +59,8 @@ class SpendingGoalData(BaseModel):
 
 class DataProcessResponse(BaseModel):
     """Resposta do Processamento de Dados"""
+
     instituicoes: list[InstitutionData]
     categorias: list[CategoryData]
     transacoes: list[TransactionData]
-    metas_gasto: list[SpendingGoalData]
+    objetivos: list[ObjetivoData]

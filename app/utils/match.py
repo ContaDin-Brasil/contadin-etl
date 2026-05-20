@@ -80,13 +80,16 @@ def match_data_response(data: dict, usuario_id: int) -> dict:
                 map_cat, nome_cat, "transacao.categoria"
             )
 
-    for meta in data.get("metas_gasto", []):
-        meta["fk_usuario"] = usuario_id
-        nome_cat = meta.get("categoria")
+    objetivos = data.get("objetivos") or data.get("metas_gasto", [])
+    for objetivo in objetivos:
+        objetivo["fk_usuario"] = usuario_id
+        nome_cat = objetivo.get("categoria")
         if nome_cat:
-            meta["fk_categoria"] = _match_ou_avisa(
-                map_cat, nome_cat, "meta_gasto.categoria"
+            objetivo["fk_categoria"] = _match_ou_avisa(
+                map_cat, nome_cat, "objetivo.categoria"
             )
+    if objetivos and "objetivos" not in data:
+        data["objetivos"] = objetivos
 
     return data
 
