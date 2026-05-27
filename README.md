@@ -83,8 +83,7 @@ Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
 |----------|-----------|
 | `DATABASE_URL` | URL de conexão com o banco de dados |
 | `GEMINI_API_KEY` | Chave da API do Google Gemini |
-| `GEMINI_MODEL` | Modelo principal (ex: `gemini-3-flash-preview`) |
-| `GEMINI_DYNAMIC` | `true` para tentar outros modelos gratuitos se a cota do principal esgotar; `false` desativa |
+| `GEMINI_MODEL` | Modelo do Gemini (ex: `gemini-3-flash-preview`) |
 | `USUARIO_ID_PADRAO` | ID padrão do usuário |
 
 ---

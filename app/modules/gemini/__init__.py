@@ -1,15 +1,10 @@
 """Módulo de integração com Gemini"""
 
-import logging
-
 from google import genai
 from google.genai import types
 
-from app.config import GEMINI_API_KEY
+from app.config import GEMINI_API_KEY, GEMINI_MODEL
 from app.core.exceptions import AIServiceError
-from app.modules.gemini.model_fallback import is_quota_error, models_to_try
-
-logger = logging.getLogger(__name__)
 
 _DEFAULT_CONFIG = types.GenerateContentConfig(
     thinking_config=types.ThinkingConfig(thinking_level="HIGH"),
@@ -27,43 +22,21 @@ def _stream_to_text(
     config: types.GenerateContentConfig,
 ) -> str:
     """Executa generate_content_stream e concatena o texto da resposta."""
-    models = list(models_to_try())
-    last_exc: Exception | None = None
-
-    for index, model in enumerate(models):
-        try:
-            result = ""
-            for chunk in client.models.generate_content_stream(
-                model=model,
-                contents=contents,
-                config=config,
-            ):
-                if chunk.text:
-                    result += chunk.text
-            if index > 0:
-                logger.info("Gemini respondeu com modelo alternativo: %s", model)
-            return result
-        except Exception as exc:
-            last_exc = exc
-            has_next = index < len(models) - 1
-            if is_quota_error(exc) and has_next:
-                next_model = models[index + 1]
-                logger.warning(
-                    "Cota/limite no modelo %s (%s). Tentando %s.",
-                    model,
-                    exc,
-                    next_model,
-                )
-                continue
-            raise AIServiceError(
-                "Não foi possível consultar o serviço de IA.",
-                detail=str(exc),
-            ) from exc
-
-    raise AIServiceError(
-        "Não foi possível consultar o serviço de IA.",
-        detail=str(last_exc),
-    ) from last_exc
+    try:
+        result = ""
+        for chunk in client.models.generate_content_stream(
+            model=GEMINI_MODEL,
+            contents=contents,
+            config=config,
+        ):
+            if chunk.text:
+                result += chunk.text
+        return result
+    except Exception as exc:
+        raise AIServiceError(
+            "Não foi possível consultar o serviço de IA.",
+            detail=str(exc),
+        ) from exc
 
 
 def generate(prompt: str) -> str:
