@@ -42,8 +42,16 @@ Analise o áudio fornecido (pode ser uma descrição verbal de uma transação, 
 8. Se o usuário mencionar parcelas (ex: "parcelado em 12x"), marque `parcelado` como `true`
 9. Caso não haja informações referente a data de transação no áudio, retorne `null` em `data_transacao`.
 
+## Conteúdo inválido
+
+Se o áudio **não** descrever uma transação ou evento financeiro (ex.: música, conversa irrelevante, ruído sem sentido), **não** invente dados. Retorne **somente** este JSON:
+
+{"erro":"audio_invalido","mensagem":"O áudio não parece descrever uma transação financeira."}
+
 ## Formato de Saída
 
-Retorne APENAS um JSON válido, sem nenhum texto adicional, sem markdown, sem explicações:
+Retorne APENAS um JSON válido, sem nenhum texto adicional, sem markdown, sem explicações.
+
+Sucesso (transação identificada):
 
 {"transacao":{"valor":0.0,"tipo":"GASTO","descricao":"...","data_transacao":null,"parcelado":false,"recorrencia":null,"fim_transacao":null,"instituicao":"..."},"instituicao":{"nome":"...","tipo":"...","icone":null,"cor":null}}

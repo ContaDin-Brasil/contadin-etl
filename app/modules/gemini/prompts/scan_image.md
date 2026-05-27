@@ -42,8 +42,16 @@ Analise a imagem fornecida (pode ser um boleto, comprovante de pagamento, nota f
 8. Se identificar parcelas (ex: "3/12"), marque `parcelado` como `true`
 9. Caso não haja informações referente a data de transação, retorne `null`, justamente porque o campo não pôde ser identificado.
 
+## Conteúdo inválido
+
+Se a imagem **não** for um documento financeiro (ex.: meme, selfie, paisagem, print aleatório, conteúdo sem relação com transações), **não** invente dados. Retorne **somente** este JSON:
+
+{"erro":"documento_invalido","mensagem":"A imagem não parece ser um documento financeiro."}
+
 ## Formato de Saída
 
-Retorne APENAS um JSON válido, sem nenhum texto adicional, sem markdown, sem explicações:
+Retorne APENAS um JSON válido, sem nenhum texto adicional, sem markdown, sem explicações.
+
+Sucesso (documento financeiro):
 
 {"transacao":{"valor":0.0,"tipo":"GASTO","descricao":"...","data_transacao":"2024-01-01","parcelado":false,"recorrencia":null,"fim_transacao":null,"instituicao":"..."},"instituicao":{"nome":"...","tipo":"...","icone":null,"cor":null}}
