@@ -4,6 +4,7 @@ from pathlib import Path
 
 from fastapi import UploadFile
 
+from app.core.exceptions import ExtractionError
 from app.modules.gemini import generate, generate_with_image, generate_with_audio
 from app.modules.etl.transform import parse_ai_response
 from app.utils.match import match_scan_response
@@ -25,6 +26,18 @@ def generate_custom(prompt: str) -> str:
     return generate(prompt)
 
 
+def _parse_scan_response(ai_response: str) -> dict:
+    """Parseia a resposta do scan e rejeita conteúdo não financeiro."""
+    structured = parse_ai_response(ai_response)
+    if structured.get("erro"):
+        raise ExtractionError(
+            structured.get("mensagem")
+            or "Não foi possível extrair dados financeiros do arquivo enviado.",
+            detail=structured.get("erro"),
+        )
+    return structured
+
+
 def scan_image(file: UploadFile, usuario_id: int | None = None) -> ScanResponse:
     """Envia imagem ao Gemini para extrair dados de transação e instituição."""
     image_bytes = file.file.read()
@@ -33,7 +46,7 @@ def scan_image(file: UploadFile, usuario_id: int | None = None) -> ScanResponse:
     prompt = (PROMPTS_DIR / "scan_image.md").read_text(encoding="utf-8")
 
     ai_response = generate_with_image(prompt, image_bytes, mime_type)
-    structured = parse_ai_response(ai_response)
+    structured = _parse_scan_response(ai_response)
 
     if usuario_id is not None:
         structured = match_scan_response(structured, usuario_id)
@@ -52,7 +65,7 @@ def scan_audio(file: UploadFile, usuario_id: int | None = None) -> ScanResponse:
     prompt = (PROMPTS_DIR / "scan_audio.md").read_text(encoding="utf-8")
 
     ai_response = generate_with_audio(prompt, audio_bytes, mime_type)
-    structured = parse_ai_response(ai_response)
+    structured = _parse_scan_response(ai_response)
 
     if usuario_id is not None:
         structured = match_scan_response(structured, usuario_id)
