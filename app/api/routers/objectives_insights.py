@@ -14,7 +14,7 @@ from app.api.schemas.objectives_insights_schema import (
     TipoObjetivo,
 )
 
-router = APIRouter(prefix="/objetivos/kpis", tags=["objetivos", "kpis"])
+router = APIRouter(prefix="/objetivos/kpis", tags=["objetivos"])
 
 
 @router.get("/acao-recomendada", response_model=AcaoRecomendadaResponse)
