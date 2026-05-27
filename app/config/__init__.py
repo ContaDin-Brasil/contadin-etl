@@ -11,6 +11,11 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 # Gemini
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 GEMINI_MODEL = os.getenv("GEMINI_MODEL")
+GEMINI_DYNAMIC = os.getenv("GEMINI_DYNAMIC", "false").lower() in (
+    "true",
+    "1",
+    "yes",
+)
 
 # User
 USUARIO_ID_PADRAO = int(os.getenv("USUARIO_ID", "1"))
