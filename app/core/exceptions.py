@@ -22,5 +22,9 @@ class AIServiceError(ETLError):
     """Falha na comunicação com o serviço de IA (timeout, quota, etc.)."""
 
 
+class AIServiceUnavailableException(AIServiceError):
+    """Todos os modelos e API keys falharam — serviço Gemini completamente indisponível."""
+
+
 class MatchError(ETLError):
     """Falha ao consultar entidades existentes no banco durante o matching."""
