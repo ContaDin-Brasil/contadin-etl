@@ -85,10 +85,17 @@ Uma **instituição** é uma entidade financeira real onde o usuário possui con
 10. Extraia instituições e categorias ÚNICAS mencionadas nos dados
 11. Nunca inclua métodos de pagamento genéricos na lista de `instituicoes`
 
+## Conteúdo inválido
+
+Se os dados **não** forem de uma planilha financeira (ex.: lista de contatos, catálogo de produtos, texto aleatório, planilha vazia ou sem transações/categorias/instituições identificáveis), **não** invente dados. Retorne **somente** este JSON:
+
+{"erro":"planilha_invalida","mensagem":"A planilha não parece conter dados financeiros."}
+
 ## Formato de Saída
 
 Retorne APENAS um JSON válido, sem nenhum texto adicional, sem markdown, sem explicações.
-O JSON deve seguir exatamente este formato:
+
+Sucesso (planilha financeira):
 
 {"instituicoes":[{"nome":"...","tipo":"...","icone":null,"cor":null}],"categorias":[{"nome":"...","tipo":"GASTO","icone":null,"cor":null}],"transacoes":[{"valor":0.0,"tipo":"GASTO","descricao":"...","data_transacao":"2024-01-01","parcelado":false,"recorrencia":null,"fim_transacao":null,"instituicao":null,"categoria":"..."}],"objetivos":[{"nome":"...","valor":0.0,"data_fim":null,"categoria":"..."}]}
 

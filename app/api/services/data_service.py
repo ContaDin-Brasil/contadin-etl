@@ -20,6 +20,18 @@ from app.api.schemas.data_schema import (
 PROMPTS_DIR = Path(__file__).resolve().parents[2] / "modules" / "gemini" / "prompts"
 
 
+def _parse_spreadsheet_response(ai_response: str) -> dict:
+    """Parseia a resposta da planilha e rejeita conteúdo não financeiro."""
+    structured = parse_ai_response(ai_response)
+    if structured.get("erro"):
+        raise ExtractionError(
+            structured.get("mensagem")
+            or "Não foi possível estruturar dados financeiros da planilha enviada.",
+            detail=structured.get("erro"),
+        )
+    return structured
+
+
 def process_spreadsheet(
     file: UploadFile, usuario_id: int | None = None
 ) -> DataProcessResponse:
@@ -46,7 +58,7 @@ def process_spreadsheet(
         ) from exc
 
     # AIResponseError é levado direto — já tem mensagem clara
-    structured = parse_ai_response(ai_response)
+    structured = _parse_spreadsheet_response(ai_response)
 
     if usuario_id is not None:
         try:
