@@ -307,18 +307,27 @@ class GeminiResilientClient:
         effective_config = config or types.GenerateContentConfig()
         rc = self._retry_config
         last_error: Exception | None = None
+        all_keys_in_cooldown = False
 
-        for model in self._models:
+        for model_index, model in enumerate(self._models):
+            next_model = (
+                self._models[model_index + 1] if model_index + 1 < len(self._models) else None
+            )
+            fallback_hint = f" → fallback para '{next_model}'" if next_model else " → sem mais fallbacks"
+
             available_keys = self._key_pool.get_all_available()
 
             if not available_keys:
+                all_keys_in_cooldown = True
                 logger.warning(
-                    "Nenhuma API key disponível ao iniciar modelo '%s' — pulando",
+                    "Todas as keys em cooldown ao tentar modelo '%s'%s",
                     model,
+                    fallback_hint,
                 )
                 continue
 
             model_failed_permanently = False
+            quota_esgotada = False
 
             for key in available_keys:
                 for attempt in range(rc.max_retries_per_combination):
@@ -326,8 +335,10 @@ class GeminiResilientClient:
                         result = self._call_with_capability_adaptation(
                             model, key, contents, effective_config
                         )
+                        prefix = "Fallback bem-sucedido" if model_index > 0 else "Chamada bem-sucedida"
                         logger.info(
-                            "Chamada bem-sucedida — modelo='%s' key=...%s",
+                            "%s — modelo='%s' key=...%s",
+                            prefix,
                             model,
                             key[-6:],
                         )
@@ -337,11 +348,12 @@ class GeminiResilientClient:
                         last_error = exc
 
                         if _is_quota_error(exc):
+                            quota_esgotada = True
                             logger.warning(
-                                "Quota esgotada — modelo='%s' key=...%s — %s",
+                                "Cota esgotada — modelo='%s' key=...%s%s",
                                 model,
                                 key[-6:],
-                                exc,
+                                fallback_hint,
                             )
                             self._key_pool.mark_cooldown(key)
                             break  # tenta próxima key
@@ -364,8 +376,9 @@ class GeminiResilientClient:
                         else:
                             # INVALID_ARGUMENT não-thinking, model not found, etc.
                             logger.error(
-                                "Erro irrecuperável para modelo='%s' — %s",
+                                "Erro irrecuperável — modelo='%s'%s — %s",
                                 model,
+                                fallback_hint,
                                 exc,
                             )
                             model_failed_permanently = True
@@ -376,16 +389,23 @@ class GeminiResilientClient:
 
             if model_failed_permanently:
                 logger.warning(
-                    "Modelo '%s' descartado por erro irrecuperável — tentando próximo",
+                    "Modelo '%s' descartado por erro irrecuperável%s",
                     model,
+                    fallback_hint,
                 )
 
+        detail = (
+            f"Todas as API keys estão em cooldown (quota esgotada). "
+            f"Aguarde {self._retry_config.key_cooldown_seconds}s e tente novamente."
+            if all_keys_in_cooldown and last_error is None
+            else str(last_error)
+        )
         raise AIServiceUnavailableException(
             message=(
                 "Serviço Gemini indisponível: todos os modelos e API keys falharam. "
                 f"Modelos tentados: {self._models}."
             ),
-            detail=str(last_error),
+            detail=detail,
         )
 
     # ── Internal ──────────────────────────────────────────────────────────────
